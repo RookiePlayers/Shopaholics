@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hangman - 100 passwords</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Cousine:400,700|Rambla:400,700" rel="stylesheet">
+        <style>
+                            body {
+                        font-family: 'Rambla', sans-serif;
+                        -webkit-touch-callout: none;
+                        -webkit-user-select: none;
+                        -khtml-user-select: none;
+                        -moz-user-select: none;
+                        -ms-user-select: none;
+                        user-select: none;
+                        background: #1e405b6c;
+                        color: azure;
+                        margin:  0 auto;
+                        
+                        
+                    }
+                    #title{
+                        text-align: center;
+                        font-size: 15vw;
+                    }
+                    #container {
+                        margin-left: auto;
+                        margin-right: auto;
+                    }
+
+                    #password {
+                        margin-top: 20px;
+                        margin-bottom: 20px;
+                        text-align: center;
+                        font-size: 4vw;
+                        min-height: 60px;
+                        font-family: 'Cousine', monospace;
+                    }
+
+                    #hangman {
+                        float: left;
+                        width: 300px;
+                        text-align: center;
+                        min-height: 300px;
+                    }
+
+                    #alphabet {
+                        float: center;
+                        width: 60vw;
+                        text-align: center;
+                       max-width: 80vw;
+                        font-size: 2vw;
+                        padding: 1vw;
+                        background: rgba(58, 49, 49, 0.37);
+                        position: absolute;
+                        left: 50%;
+                        margin-left: -30vw;
+                    }
+
+                    #passNumber {
+                        margin-left:auto;
+                        margin-right: auto;
+                        text-align: center;
+                    }
+                    /* ---- reset ---- */
+
+
+
+                        canvas {
+                        display: block;
+                        vertical-align: bottom;
+                        }
+
+                        /* ---- particles.js container ---- */
+
+                        #particles-js {
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                        background-color: #b61924;
+                        background-image: url("");
+                        background-repeat: no-repeat;
+                        background-size: cover;
+                        background-position: 50% 50%;
+                        }
+
+                        /* ---- stats.js ---- */
+
+                        .count-particles{
+                        background: #000022;
+                        position: absolute;
+                        top: 48px;
+                        left: 0;
+                        width: 80px;
+                        color: #13E8E9;
+                        font-size: .8em;
+                        text-align: left;
+                        text-indent: 4px;
+                        line-height: 14px;
+                        padding-bottom: 2px;
+                        font-family: Helvetica, Arial, sans-serif;
+                        font-weight: bold;
+                        }
+
+                        .js-count-particles{
+                        font-size: 1.1em;
+                        }
+
+                        #stats,
+                        .count-particles{
+                        -webkit-user-select: none;
+                        }
+
+                        #stats{
+                        border-radius: 3px 3px 0 0;
+                        overflow: hidden;
+                        }
+
+                        .count-particles{
+                        border-radius: 0 0 3px 3px;
+                        }
+                    
+                    .start {
+                        
+                           
+                            border-radius: 4px;
+                            background-color: #00638a;
+                            border: none;
+                            color: #FFFFFF;
+                            text-align: center;
+                            font-size: 3vw;
+                            padding: 1vw;
+                            width: 20vw;
+                            transition: all 0.5s;
+                            cursor: pointer;
+                    
+                    }
+
+                    .start span {
+                    cursor: pointer;
+                    display: inline-block;
+                    position: relative;
+                    transition: 0.5s;
+                    }
+
+                    .start span:after {
+                    content: '\00bb';
+                    position: absolute;
+                    opacity: 0;
+                    top: 0;
+                    right: -20px;
+                    transition: 0.5s;
+                    }
+
+                    .start:hover span {
+                    padding-right: 25px;
+                    }
+
+                    .start:hover span:after {
+                    opacity: 1;
+                    right: 0;
+                    }
+                    .startScreen {
+                        position: absolute;
+                        width: 100%;
+                        height:100%;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        -ms-transform: translate(-50%, -50%);
+                        background-color: #000000da;
+                        border: none;
+                        text-align: center;
+                        }
+
+                    .letter {
+                    
+                     
+                        text-align: center;
+                        margin:5px;
+                        border: 2px solid azure;
+                        float: left;
+                        cursor: pointer;
+                        border-radius: 1em;
+                        padding: 2vw;
+                        -webkit-transition-duration: 0.4s;
+                        transition-duration: 0.4s;
+                    }
+                    #wordPoint{
+                        text-align: center;
+                       
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                        font-size: 1.5vw;
+                    }
+
+                    .letter:hover {
+                        background-color: aqua;
+                        color:azure;
+                        border: 2px solid azure;
+                        box-shadow: 0 5px 10px 0 rgba(0,0,0,0.2), 0 10px 30px 0 rgba(0,0,0,0.19);
+                    }
+
+                    .resetSzub {
+                        color: chartreuse;
+                        cursor: pointer;
+                        font-size: 60px;
+                        -webkit-transition-duration: 0.4s;
+                        transition-duration: 0.4s
+                    }
+                    #points{
+                        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                      
+                    }
+                    h5{
+                        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                        font-size:3vw
+                    }
+                    h6{
+                        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                        font-size:2vw
+                    }
+                    .hr{
+                        display: flex;
+                        width: 50px;
+                        justify-content: space-between
+                    
+                    }
+                    .gameInfo{
+                        display: flex;
+                       
+                        width: 57vw;
+                       
+                        justify-content: space-around;
+                       
+                        margin-left: 20vw;
+                        
+                    }
+
+                    .resetSzub:hover{
+                        box-shadow: 0 5px 10px 0 rgba(0,0,0,0.2), 0 10px 30px 0 rgba(0,0,0,0.19);
+                    }
+
+                    .resetSzub1 {
+                        color: crimson;
+                        cursor: pointer;
+                        font-size: 60px;
+                        -webkit-transition-duration: 0.4s;
+                        transition-duration: 0.4s;
+                    }
+                    
+
+                    .resetSzub1:hover{
+                        box-shadow: 0 5px 10px 0 rgba(0,0,0,0.2), 0 10px 30px 0 rgba(0,0,0,0.19);
+                    }
+                    .playagain {
+                        color: rgb(0, 154, 192);
+                        cursor: pointer;
+                        font-size: 60px;
+                        -webkit-transition-duration: 0.4s;
+                        transition-duration: 0.4s;
+                    }
+                    
+
+                    .playagain:hover{
+                        box-shadow: 0 5px 10px 0 rgba(0,0,0,0.2), 0 10px 30px 0 rgba(0,0,0,0.19);
+                    }
+                    #tip{
+                        font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                        font-size:2.5vw;
+                        text-align: center;
+                        color: azure;
+                    }
+                    #timer{
+                        text-align: center
+                    }
+                    #attempts{
+                        text-align: center;
+                    }
+                    #question{
+                        text-align: center;
+                    }
+                    
+                  
+        </style>
+    </head>
+    <body>
+     <div class="mainui">
+        <script>
+                   var lv1Words=[
+                    {word:"Fashion",tip:"Something to do with Models",points:30},
+                    {word:"Kare",tip:"Kreative Artistic Relevant Evolution",points:20},
+                    {word:"music",tip:"Can be beautiful,sad,happy,Motivational and more..",points:25},
+                    {word:"team",tip:"\"There is no i in _____\"",points:25},
+                    {word:"London",tip:"Capital city of england",points:30},
+                    {word:"Black",tip:"A Dark but beautiful skin color",points:25},
+                    {word:"White",tip:"Opposite of Black",points:25},
+                    {word:"event",tip:"Something you get invited or go to",points:25},
+                    {word:"rookie",tip:"We were all R----- once upon a time",points:30},
+                    {word:"basic",tip:"A new type of -----",points:25},
+                    {word:"hiphop",tip:"Popular music genre",points:25},
+                    {word:"Dance",tip:"All you have to do is move your body in Rythme",points:25},
+                    {word:"Ballet",tip:"A form of dance",points:30},
+                    {word:"Genre",tip:"Another word for music catagory",points:30},
+                    {word:"Jazzy",tip:"Smoothe music with a bounce to it",points:30},
+                    {word:"Clothes",tip:"You wear it to cover up",points:20},
+                    {word:"Buy",tip:"Make a purchase",points:10},
+                    {word:"Juicy",tip:"When you have to much Sauce",points:30},
+                    {word:"IPhone",tip:"Very Popular for being overpriced",points:20},
+                    {word:"subway",tip:"Both a Train stop and a resturant",points:10},
+                    {word:"Jelly",tip:"sometimes sticky",points:15},
+                    {word:"wavy",tip:"Too much Drip",points:35},
+                    {word:"Alchol",tip:"Nasty, Poison but gets you Lit",points:20},
+                    {word:"Tracky",tip:"Comes in pairs but can be worn individually",points:15},
+                    {word:"College",tip:"A place that defines you for the rest of your life",points:30},
+                    {word:"Family",tip:"Most Important people in your life",points:12},
+                    ];
+                    var lv2Words=[
+                    {word:"Avenue",tip:"L'------",points:45},
+                    {word:"phony",tip:"A fake person",points:40},
+                    {word:"Guru",tip:"A Master at something",points:40},
+                    {word:"embezzle",tip:"To Add on to a story",points:45},
+                    {word:"Flopping",tip:"Making a mistake",points:40},
+                    {word:"Gymnasium",tip:"Where people workout",points:45},
+                    {word:"Badminton",tip:"Like tennis but smaller",points:40},
+                    {word:"Free Throw",tip:"When a foul is called in Basketball",points:45},
+                    {word:"Hole in One",tip:"Hitting a hole on your first try",points:45},
+                    {word:"Playoffs",tip:"After the Regular Season",points:45},
+                    {word:"taekwondo",tip:"A form of Martial Arts",points:50},
+                    {word:"synchronized Swimming",tip:"Toghest kind of Swimming",points:50},
+                    {word:"Dwarves",tip:"Lord of the rings have plenty",points:50},
+                    {word:"Captain Marvel",tip:"Strongest Marvel female character with her own movie",points:40},
+                    {word:"Quora",tip:"A site where people ask a lot of questions",points:50},
+                    {word:"Sphinx",tip:"A type of cat",points:50},
+                    {word:"Kiosk",tip:"A stand where people sell stuff",points:50},
+                    
+                    ];       
+                window.onload = function () {
+                  
+                        
+                    
+                   // wrtPass();
+                  //  starts();
+         // document.getElementByClass("start").innerHTML = "This is password number: " + nrOfPassword;
+                }
+                function startGame(){
+                  var elem=  document.getElementById("ss");
+                  elem.style.visibility = 'hidden';
+                  console.log("starting...");
+                  var i=0;
+                     levels(1);
+                }
+                
+
+                //random password number
+
+                
+
+                    
+                    
+                    
+                //round one
+
+              
+
+                    function genRandomNumber(max){
+                    let nrOfPassword = Math.floor(Math.random() * max )
+                        return nrOfPassword;
+                   }
+
+
+             //   var passwords = ['ABC','SoloLearn','accident','accompany','accomplish','according','account','accurate','accuse','achieve','achievement','acid','acknowledge','beside','best','bet','better','between','beyond','Bible','big','bike','bill','billion','bind','biological','bird','birth','capability','capable','capacity','capital','captain','capture','car','carbon','card','care','career','careful','carefully','drag','drama','dramatic','dramatically','draw','drawing','gene','general','generally','generate','generation','genetic','gentleman','gently','German','gesture','ghost','giant','gift','gifted','girl','height','helicopter','hell','hello','immigrant','immigration','impact','implement','implication','Jewish','job','join','joint','joke','knee','knife','knock','know','knowledge','leader','leadership','leading','leaf','league','mainly','maintain','maintenance','major','majority','owner','pace','pack','package','page','some words', 'more words', 'also more words', 'out of ideas', 'one missing'];
+
+                //writing a 'dotted' password
+
+                var wrongs = 0;
+              
+                var actualWord ="";//lv1Words[genRandomNumber(lv1Words.length)].word;
+               // pass = pass.toUpperCase();
+                var myWord = "";
+                var myPoints=0;
+                var currentRound=1;
+
+                
+                var LENGTHOFROUND=2;
+               var lengthOfRound=LENGTHOFROUND;
+                
+
+                
+
+                //writing password
+
+                function wrtPass(){
+                    document.getElementById("password").innerHTML = myWord;
+                }
+
+                //array with all letter's
+
+                var lett = new Array(26);
+
+                lett[0] = "A";
+                lett[1] = "B";
+                lett[2] = "C";
+                lett[3] = "D";
+                lett[4] = "E";
+                lett[5] = "F";
+                lett[6] = "G";
+                lett[7] = "H";
+                lett[8] = "I";
+                lett[9] = "J";
+                lett[10] = "K";
+                lett[11] = "L";
+                lett[12] = "M";
+                lett[13] = "N";
+                lett[14] = "O";
+                lett[15] = "P";
+                lett[16] = "Q";
+                lett[17] = "R";
+                lett[18] = "S";
+                lett[19] = "T";
+                lett[20] = "U";
+                lett[21] = "V";
+                lett[22] = "W";
+                lett[23] = "X";
+                lett[24] = "Y";
+                lett[25] = "Z";
+                var index=0;
+                var indexes=[-1];
+                function contains(item){
+                    
+                    for(var i=0;i<indexes.length;i++){
+                        
+                        if(indexes[i]==item)return true;
+                    }console.log("here");
+                    return false;
+                }
+                 var curQ=1;
+                function playGame(levelwords){
+                    console.log(curQ);
+                    starttimer(30);
+                   
+                    document.getElementById("round").innerText="Round "+currentRound;
+                  //(LENGTHOFROUND-(lengthOfRound-(i++)))+
+                    document.getElementById("question").innerText="Quetion: "+(curQ)+"/"+LENGTHOFROUND;
+                  
+                    document.getElementById("points").innerText="Points: "+myPoints;
+                   index=genRandomNumber(levelwords.length);
+                   
+                     while(contains(index)){
+                       index=genRandomNumber(levelwords.length);
+                       
+                    
+                  
+                    }indexes.push(index);
+                    actualWord=levelwords[index].word;
+                  
+                    actualWord = actualWord.toUpperCase();
+                    myWord = "";
+                        for ( i = 0; i<actualWord.length; i++) {
+                        if ( actualWord.charAt(i) == " ") myWord = myWord + " ";
+                        else myWord =myWord + "-";
+                    }
+                    wrongs=0;
+                    wrtPass();
+                    document.getElementById("wordPoint").innerHTML="This Word is Worth "+levelwords[index].points+" Points";
+                    document.getElementById("tip").innerHTML="Tip: "+levelwords[index].tip;
+                    
+                     starts();
+
+                }
+
+                function levels(level){
+                    
+                    var lvls=1;
+                    var i=0,j=0;
+                    wrongs=0;
+
+                    document.getElementById("attempts").innerHTML = 'Attempts: '+wrongs+' out of 10';
+                    var levelwords=lv1Words;
+                    switch(level){
+                        case 1:{
+                            levelwords=lv1Words;
+                        playGame(levelwords);
+                            
+                        }break;
+                        case 2:{
+                            console.log("its level 2");
+                            
+                            levelwords=lv2Words;
+                            document.getElementById("alphabet").innerHTML = "<p>Well Done You've Completed Every all levels. </p> <br>Summary: </br><br>Your total Points Earned: "+myPoints+"</br><br><span class='playagain' onclick='location.reload()'>Play Again</span></br>";
+                        playGame(levelwords);
+                           
+                        }break;
+                        default: document.getElementById("alphabet").innerHTML = "<p>Well Done You've Completed Every all levels. </p> <br>Summary: </br><br>Your total Points Earned: "+myPoints+"</br><br><span class='playagain' onclick='location.reload()'>Play Again</span></br>";break;
+                    }
+                  
+                            
+                        
+                
+           
+                }
+
+                function starts (myWord,actualWord) {
+                    var divCont = "";
+                    
+                    for ( i = 0 ; i <= 25 ; i++ ) {
+                        var element = "lit" + i;
+                        divCont = divCont + '<div id="'+element+'" class="letter" onclick="spr('+i+')">'+ lett[i] +'</div>';
+                        if ( (i+1) % 6 == 0 ) divCont + '<div style="clear: both;"></div>';
+                    }
+                    
+                    document.getElementById("alphabet").innerHTML = divCont;
+                }
+
+                //this is where you are changing that'dotted' password to the letter. 
+
+                String.prototype.setChar = function(place, char) {
+                    if ( place > this.length - 1 ) return this.toString();
+                    else return this.substr(0, place) + char + this.substr(place+1);
+                }
+
+                var currentWord="";
+                function spr(nr) {
+                    var myElement = document.querySelector("#timer");
+                    var hitted = false;
+                    
+                    
+                for ( i = 0; i<actualWord.length; i++) {
+                    if (actualWord.charAt(i) == lett[nr]){
+                        myWord = myWord.setChar(i,lett[nr]);
+                        //console.log(pass1);
+                        hitted = true;
+                    }
+                }
+                    
+                    if (hitted == true){
+                        var element = "lit" + nr;
+                        let kom = document.getElementById(element);
+                        kom.style.backgroundColor = "green";
+                        kom.style.cursor = "not-allowed";
+                        kom.style.border = "solid 2px green";
+                        wrtPass();
+                    } else {
+                        var element = "lit" + nr;
+                        let kom = document.getElementById(element);
+                        kom.style.backgroundColor = "red";
+                        kom.style.cursor = "not-allowed";
+                        kom.style.border = " solid 2px red";
+                        kom.setAttribute("onclick",";");
+                    
+                        //wrong letter 
+                        wrongs++;
+                        document.getElementById("attempts").innerHTML = 'Attempts:'+wrongs+'/10';
+                    }
+                    
+                    //win yeah
+                    currentWord=actualWord;
+                   
+                    if (actualWord == myWord)
+                        {
+                            myElement.style.color="white";
+                            clearInterval(timercontroller);
+                            
+                            
+                            switch(currentRound){
+                                case 1: {
+                                    myPoints+=lv1Words[index].points;
+                                 
+                                    LENGTHOFROUND=1;
+                                }break;
+                                case 2: {
+                                    myPoints+=lv2Words[index].points;
+                                    
+                                    LENGTHOFROUND=1;
+                                }break;
+                                default:break;
+
+                            }
+                            if(curQ<LENGTHOFROUND)
+                            {
+                                curQ++;
+                                levels(currentRound);
+                            }
+                            else
+                            {
+                                
+                                curQ=1;
+                                levels(++currentRound);
+                            }
+
+                        }
+                      
+                        //document.getElementById("alphabet").innerHTML = "<p>Congratulations! You guessed the password: "+pass+"</p><br/><br/> <span class='resetSzub' onclick='location.reload()'>ONE MORE</span>"
+                    //lose nope :(
+                    
+                    if(wrongs >=10)
+                       {
+                        myElement.style.color="white";
+                            clearInterval(timercontroller);
+                           document.getElementById("alphabet").innerHTML = "<p>You've Failed to crak the safe! Correct password is: "+actualWord+"</p><br/><br/> <span class='resetSzub1' onclick='keepPlaying()'>Keep Playing</span><br/> <span class='resetSzub1' onclick='location.reload()'>RESTART</span>>"
+                          
+                }
+                
+                }
+               
+                var timercontroller;
+                function keepPlaying(){
+                    if(curQ<LENGTHOFROUND)
+                            {
+                                curQ++;
+                                levels(currentRound);
+                            }
+                            else
+                            {
+                              
+                                curQ=1;
+                                levels(++currentRound);
+                            }
+                       }
+                function starttimer(time){
+                 timercontroller=setInterval(function() {
+                 
+                    // Get todays date and time
+                    var now = new Date().getTime();
+                    time-=1;
+                    // Find the distance between now and the count down date
+                    var distance = time*1000;
+
+                    // Time calculations for days, hours, minutes and seconds
+                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    // Display the result in the element with id="demo"
+                    document.getElementById("timer").innerHTML = ""+minutes + ":" + seconds + "";
+                    var myElement = document.querySelector("#timer");
+                    if(distance<10000){
+                       
+                        myElement.style.color="lightpink";
+                    }
+
+                    // If the count down is finished, write some text 
+                    if (distance < 0) { myElement.style.color="white";
+                    clearInterval(timercontroller);
+                    
+                    document.getElementById("timer").innerHTML = actualWord.toUpperCase();
+                    if(lengthOfRound>1)
+                            {
+                                lengthOfRound--;
+                                levels(currentRound);
+                            }
+                            else
+                            levels(++currentRound);
+                    }
+                    
+                    }, 1000);
+                }
+             
+        </script>
+        
+        <div class="gameInfo">
+            <h6 id="points">Points: 0</h6>
+            <div><h6 id="round">Round 1</h6>
+                 </div>
+          
+            
+
+        </div> <p id="question">
+                Question x/y;
+            </p>
+        <h6 id="attempts">Atempts:  0/10</h6>
+ 
+        <h1 id="timer">00:00</h1>
+        
+        <h3 id="tip">Tip: </h3>
+        <p id="wordPoint"> This word is worth 0 points</p>
+        
+        <div id="container">
+            <div id="password"></div>
+            
+            <!--div id="hangman">
+               <div>
+                   You have used 0/10 of your lifes!<br>
+               </div>
+            </div-->
+            
+            <div id="alphabet"></div>
+            <div style="clear:both;"></div>
+            <!--div id="passNumber">
+              This is password number: <div id="zaq"></div>
+            </div-->
+        </div>
+        <div class="startScreen" id="ss">
+            <h1 id="title">H/cKm@n</h1>
+            <button class="start" onclick="startGame()"><span>Play </span></button>
+                        <div id="particles-js"></div>
+
+            <!-- stats - count particles -->
+            <div class="count-particles">
+            <span class="js-count-particles">--</span> particles
+            </div>
+        </div>
+    
+    </body>
+</html>

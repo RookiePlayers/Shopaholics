@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <style>
+            
+       .background{
+           background:linear-gradient(180deg,rgb(0, 195, 255),rgb(163, 230, 247),rgb(255, 235, 178));
+           width: 100%;
+            height: 100%; 
+            position: fixed;
+       }
+       #bg{
+           z-index: -1;
+           filter: blur(10px);
+           text-align: center
+       }
+       .sky{
+           width:100%;
+           height: 80%;
+           position: fixed;
+           top:0;
+           
+       }
+       #weather{
+           width: 200px;
+           height: 200px;
+           
+       }
+       .ground{
+        width:100%;
+           height: 5%;
+           position:fixed;
+          bottom: 0;
+           background: linear-gradient(rgb(49, 24, 17),rgb(0, 0, 0))
+       }
+       #trolley{
+           text-align: center;
+           font-size: 10vw;
+           z-index: 1;
+           margin-top: -20px;
+           
+       }
+       canvas { background: #eee; }
+   </style>
+</head>
+<body>
+  <!--div class="background">
+      <canvas id="canvas"></canvas>
+      <div id="bg">
+          <img src="https://purepng.com/public/uploads/large/purepng.com-city-skylinecitycitiesskylineskyscrapers-251520164457vrrnd.png" alt="">
+      </div>
+    <div class="sky">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Sun.svg/500px-Sun.svg.png" alt="Weather" id="weather">
+
+    </div>
+   
+    <div class="ground">
+        
+    </div>
+    
+  </div-->
+
+  <canvas id="canvas" width="8" height="8"></canvas>
+  <script>
+  var canvas = document.getElementById("canvas");
+  var dimension = [document.documentElement.clientWidth, document.documentElement.clientHeight];
+  
+  var powerUps=[
+    {icon:"💨",name:"Speed boost",type:"spd",power:5}
+  ];
+  var item={
+    position:{x:canvas.width/2,y:0},
+    velocity:{x:10,y:0},
+    s_item:getItem()
+
+  };
+  
+var Cd = 0.47;  // Dimensionless
+var rho = 1.22; // kg / m^3
+var A = Math.PI * item.s_item.radius * item.s_item.radius / (10000); // m^2
+var ag = 9.81;  // m / s^2
+  
+
+  function setupItem()
+  {
+    var fromx=Math.random()*canvas.width;
+    var fromy=Math.random()*canvas.height;
+    item.position.x=Math.floor(fromx);
+    item.position.y=Math.floor(fromy);
+    item.velocity.y=(item.position.y-fromx)/10;
+    item.velocity.x=(item.position.x-fromy)/10;
+
+    ctx.font = "16px Arial";
+          ctx.fillStyle = "#0095DD";
+          ctx.fillText(item.s_item.icon, canvas.width/2, 0);
+    
+  }
+  function pickedUpBoost(powerUp)
+  {
+    switch(powerUp.type){
+      case "spd":{
+         speed=7+powerUp.power; 
+
+        
+          initiateBoost();
+      }break;
+      default:break;
+    }
+
+  }
+   var ti;var t=10000;
+  function initiateBoost()
+  {
+  ti=setInterval(function(){
+        t-=1000;
+        console.log(t/1000);
+          if(t<=0){
+            clearInterval(ti);
+            boost=false;
+            t=10000;
+          }
+        },1000)
+  }
+var selectedBoost=null;
+canvas.width = dimension[0];
+canvas.height = dimension[1];
+        var ctx = canvas.getContext("2d");
+        var itemRadius = 10;
+        var x = canvas.width/2;
+        var y = canvas.height-30;
+        var dx = 2;
+        var dy = -2;
+        var paddleHeight = 10;
+        var paddleWidth = 75;
+        var paddleX = (canvas.width-paddleWidth);
+        var rightPressed = false;
+        var leftPressed = false;
+        var brickRowCount = 5;
+        var brickColumnCount = 3;
+        var brickWidth = 75;
+        var brickHeight = 20;
+        var brickPadding = 10;
+        var brickOffsetTop = 30;
+        var brickOffsetLeft = 30;
+        var score = 0;
+        var lives = 3;
+        var boostdy=canvas.height-paddleHeight;
+        var boostdx=100;
+        var speed;
+        var frameRate = 1/40; // Seconds
+        var frameDelay = frameRate * 1000; // ms
+        var loopTimer = false;
+
+        
+        var bricks = [];
+        for(var c=0; c<brickColumnCount; c++) {
+          bricks[c] = [];
+          for(var r=0; r<brickRowCount; r++) {
+            bricks[c][r] = { x: 0, y: 0, status: 1 };
+          }
+        }
+        
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+      //  document.addEventListener("mousemove", mouseMoveHandler, false);
+        
+
+
+
+
+
+
+        function keyDownHandler(e) {
+            if(e.key == "Right" || e.key == "ArrowRight") {
+                rightPressed = true;
+            }
+            else if(e.key == "Left" || e.key == "ArrowLeft") {
+                leftPressed = true;
+            }
+        }
+        
+        function keyUpHandler(e) {
+            if(e.key == "Right" || e.key == "ArrowRight") {
+                rightPressed = false;
+            }
+            else if(e.key == "Left" || e.key == "ArrowLeft") {
+                leftPressed = false;
+            }
+        }
+        
+        function mouseMoveHandler(e) {
+          var relativeX = e.clientX - canvas.offsetLeft;
+          if(relativeX > 0 && relativeX < canvas.width) {
+            paddleX = relativeX - paddleWidth/2;
+          }
+        }
+        function collisionDetection() {
+          for(var c=0; c<brickColumnCount; c++) {
+            for(var r=0; r<brickRowCount; r++) {
+              var b = bricks[c][r];
+              if(b.status == 1) {
+                if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                  dy = -dy;
+                  b.status = 0;
+                  score++;
+                  if(score == brickRowCount*brickColumnCount) {
+                    alert("YOU WIN, CONGRATS!");
+                    document.location.reload();
+                  }
+                }
+              }
+            }
+          }
+        }
+        function boostCollision(){
+          if(selectedBoost!=null){
+            console.log("Px: "+paddleX+", Bx: "+boostdx);
+            if(paddleX<=boostdx+50&&paddleX>=boostdx-50){
+              console.log("BOOM!");
+              clearInterval(ti);
+              pickedUpBoost(selectedBoost);
+              boost=false;
+            }
+          }
+        }
+
+
+
+        function basedonchance(chance)
+
+        {
+
+          var s_items=[
+            {icon:"👕",worth:50,chance:0.60,name:"T-shirt",mass:0.02,radius:1,restitution:0},
+            {icon:"👚",worth:50,chance:0.60,name:"Blouse",mass:0.02,radius:1,restitution:0},
+            {icon:"👗",worth:100,chance:0.50,name:"Dress",mass:0.02,radius:1,restitution:0},
+            {icon:"🎽",worth:30,chance:0.65,name:"Vest",mass:0.02,radius:1,restitution:0},
+            {icon:"👖",worth:50,chance:0.60,name:"Jeans",mass:0.02,radius:1,restitution:0},
+            {icon:"👘",worth:120,chance:0.5,name:"Kinmono",mass:0.02,radius:1,restitution:0},
+            {icon:"👙",worth:90,chance:0.6,name:"Bikini",mass:0.02,radius:1,restitution:0},
+            {icon:"👔",worth:100,chance:0.5,name:"Shirt",mass:0.02,radius:1,restitution:0},
+            {icon:"🎧",worth:300,chance:0.3,name:"Headphones",mass:0.1,radius:1,restitution:0},
+            {icon:"🎸",worth:200,chance:0.4,name:"Electric Guitar",mass:10.5,radius:1,restitution:0},
+            {icon:"🎷",worth:340,chance:0.3,name:"Sax",mass:8.3,radius:1,restitution:1},
+            {icon:"🎻",worth:500,chance:0.3,name:"Violin",mass:6.5,radius:1,restitution:0},
+            {icon:"🎹",worth:220,chance:0.4,name:"Piano",mass:12.02,radius:1,restitution:0},
+            {icon:"🎮",worth:600,chance:0.5,name:"Game",mass:6.02,radius:1,restitution:0},
+            {icon:"📱",worth:800,chance:0.4,name:"Phone",mass:2.02,radius:1,restitution:0},
+            {icon:"🍉",worth:40,chance:0.8,name:"watermelon",mass:3.02,radius:1,restitution:0},
+            {icon:"🍓",worth:30,chance:0.8,name:"strawberry",mass:0.5,radius:1,restitution:0},
+            {icon:"🥙",worth:50,chance:0.8,name:"Wrap",mass:0.02,radius:1,restitution:0},
+            {icon:"🥗",worth:10,chance:0.8,name:"Salad",mass:0.02,radius:1,restitution:0},
+            {icon:"🌮",worth:20,chance:0.8,name:"Taco",mass:0.03,radius:1,restitution:0},
+            {icon:"🍑",worth:40,chance:0.8,name:"Peach",mass:0.04,radius:1,restitution:0},
+            {icon:"🍗",worth:40,chance:0.8,name:"Chicken",mass:0.05,radius:1,restitution:0},
+            {icon:"🍕",worth:60,chance:0.8,name:"Pizza",mass:0.05,radius:1,restitution:0},
+            {icon:"🍹",worth:50,chance:0.8,name:"Cocktail",mass:3.0,radius:1,restitution:0},
+            {icon:"🍷",worth:100,chance:0.8,name:"wine",mass:3.02,radius:1,restitution:0},
+            {icon:"🌭",worth:40,chance:0.8,name:"Hot dog",mass:0.5,radius:1,restitution:0},
+            {icon:"🍔",worth:30,chance:0.8,name:"Burger",mass:0.5,radius:1,restitution:0},
+            {icon:"🍩",worth:20,chance:0.8,name:"Doughnuts",mass:0.5,radius:1,restitution:0},
+            {icon:"🍟",worth:20,chance:0.8,name:"Fries",mass:0.02,radius:1,restitution:0},
+            {icon:"🎂",worth:50,chance:0.8,name:"Cake",mass:0.06,radius:1,restitution:0},
+            {icon:"🍨",worth:40,chance:0.8,name:"Ice cream",mass:0.02,radius:1,restitution:0},
+            {icon:"💎",worth:500,chance:0.2,name:"Diamond",mass:5.02,radius:1,restitution:0},
+            {icon:"💍",worth:1200,chance:0.2,name:"ring",mass:3.02,radius:1,restitution:0},
+            {icon:"👑",worth:6000,chance:0.05,name:"crown",mass:13.02,radius:1,restitution:0},
+            {icon:"🔭",worth:300,chance:0.4,name:"telescope",mass:20.02,radius:1,restitution:0},
+            {icon:"🚢",worth:1200,chance:0.2,name:"Cruise",mass:1000.02,radius:1,restitution:0},
+
+        ];
+
+            var setOfItem=[];
+            for(var i=0;i<s_items.length;i++){
+                    if(s_items[i].chance===chance)setOfItem.push(s_items[i]);
+            }
+            return setOfItem;
+        }
+
+        function getItem(){
+
+
+            
+
+            var rarity=[0,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,];
+            var rand1 = rarity[Math.floor(Math.random() * rarity.length)];
+            console.log("The rarity value is: "+rand1);
+            var selection=[];
+            switch(rand1){
+                case 0: {
+                    selection=basedonchance(0.05);
+                }break;
+                case 1: {
+                    selection=basedonchance(0.2);
+                }break;
+                case 2: {
+                    selection=basedonchance(0.3);
+                }break;
+                case 3: {
+                    selection=basedonchance(0.4);
+                }break;
+                case 4: {
+                    selection=basedonchance(0.5);
+                }break;
+                case 5: {
+                    selection=basedonchance(0.6);
+                }break;
+                case 6: {
+                    selection=basedonchance(0.65);
+                }break;
+                case 7: {
+                    selection=basedonchance(0.8);
+                }break;
+                
+                default:break;
+            }
+            selection.forEach(element => {
+                console.log(element.name);
+            });
+            return selection[Math.floor((Math.random() * selection.length))];
+
+            
+        }
+
+
+
+        function drawitem() {
+          ctx.beginPath();
+          ctx.arc(x, y, itemRadius, 0, Math.PI*2);
+          ctx.fillStyle = "#0095DD";
+          ctx.fill();
+          ctx.closePath();
+        }
+
+        function displayBoost(){
+          var rarity=["none","none","none","none","spd","none","none"];
+            var rand1 = rarity[Math.floor(Math.random() * rarity.length)];
+            console.log(rand1);
+            switch(rand1){
+              case "spd":{
+                selectedBoost=powerUps[0];
+                return true;
+              }
+              default:return false;
+            }
+        }
+        var boost=false;
+        var releaseItem=false;
+        function drawPaddle() {
+         /* ctx.beginPath();
+          ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+          ctx.fillStyle = "#0095DD";
+          ctx.fill();
+          ctx.closePath();*/
+          ctx.font = '70px times new roman';
+          ctx.strokeText('🛒', paddleX, canvas.height-paddleHeight);
+        }
+        function drawBricks() {
+          for(var c=0; c<brickColumnCount; c++) {
+            for(var r=0; r<brickRowCount; r++) {
+              if(bricks[c][r].status == 1) {
+                var brickX = (r*(brickWidth+brickPadding))+brickOffsetLeft;
+                var brickY = (c*(brickHeight+brickPadding))+brickOffsetTop;
+                bricks[c][r].x = brickX;
+                bricks[c][r].y = brickY;
+                ctx.beginPath();
+                ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+              }
+            }
+          }
+        }
+        setInterval(function(){
+          
+          
+          if(!boost)
+          {
+            boostdx=Math.floor(Math.random()*canvas.width);
+          boost=displayBoost();
+          }console.log("Boost ? "+boost);
+        },1000);
+
+        function handleItemsInterval(){
+          var time=1000;
+          
+          setInterval(function(){
+          time-=1000;
+          if(time<=0){
+            time=Math.floor(Math.random()*20000);
+            
+          }
+          
+          
+        },1000);
+        }
+        
+        
+        function drawBoost(){
+          ctx.font = "70px Arial";
+        
+         
+          ctx.fillText(selectedBoost!=null?selectedBoost.icon:"", boostdx, boostdy);
+          //boost=false;
+        }
+        function drawScore() {
+          ctx.font = "16px Arial";
+          ctx.fillStyle = "#0095DD";
+          ctx.fillText("Speed: "+Math.abs(speed), canvas.width/2, 20);
+        }
+        function drawSpeed() {
+          ctx.font = "16px Arial";
+          ctx.fillStyle = "#0095DD";
+          ctx.fillText("Score: "+score, 8, 20);
+        }
+        function drawLives() {
+          ctx.font = "16px Arial";
+          ctx.fillStyle = "#0095DD";
+          ctx.fillText("Lives: "+lives, canvas.width-65, 20);
+        }
+        var boostvisible=10000;
+        function draw() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          drawBricks();
+          drawitem();
+          drawPaddle();
+          drawScore();
+          drawLives();
+          collisionDetection();
+        if(boost){
+          boostvisible-=1000
+          drawBoost();
+          boostCollision();
+        }else{
+          boostvisible=10000;
+        }
+          if(x + dx > canvas.width-itemRadius || x + dx < itemRadius) {
+            dx = -dx;
+          }
+          if(y + dy < itemRadius) {
+            dy = -dy;
+          }
+          else if(y + dy > canvas.height-itemRadius) {
+            if(x > paddleX && x < paddleX + paddleWidth) {
+              dy = -dy;
+            }
+            else {
+              lives--;
+              if(!lives) {
+                alert("GAME OVER");
+                document.location.reload();
+              }
+              else {
+                x = canvas.width/2;
+                y = canvas.height-30;
+                dx = 3;
+                dy = -3;
+                paddleX = (canvas.width-paddleWidth)/2;
+              }
+            }
+          }
+          console.log("BOOST: "+boost);
+          if(!boost && selectedBoost!=null){
+            if(selectedBoost.type!="spd")
+          {
+            speed=7;
+           
+          }
+          else{
+            speed=speed;
+          }
+        }else {
+          speed=7;
+        
+        }
+        if(rightPressed && paddleX < canvas.width-paddleWidth) {
+            paddleX += speed;
+          }
+          else if(leftPressed && paddleX > 0) {
+            paddleX -= speed;
+          }
+          x += dx;
+          y += dy;
+          if (releaseItem){
+            setupItem();
+            var Fx = -0.5 * Cd * A * rho * item.velocity.x * item.velocity.x * item.velocity.x / Math.abs(item.velocity.x);
+            var Fy = -0.5 * Cd * A * rho * item.velocity.y * item.velocity.y * item.velocity.y / Math.abs(item.velocity.y);
+            
+            Fx = (isNaN(Fx) ? 0 : Fx);
+            Fy = (isNaN(Fy) ? 0 : Fy);
+            
+                // Calculate acceleration ( F = ma )
+            var ax = Fx / item.s_item.mass;
+            var ay = ag + (Fy / item.s_item.mass);
+                // Integrate to get velocity
+            item.velocity.x += ax*frameRate;
+            item.velocity.y += ay*frameRate;
+            
+                // Integrate to get position
+            item.position.x += item.velocity.x*frameRate*100;
+            item.position.y += item.velocity.y*frameRate*100;
+        }
+        // Handle collisions
+        if (item.position.y > canvas.height - item.s_item.radius) {
+            item.velocity.y *= item.restitution;
+            item.position.y = canvas.height - item.s_item.radius;
+        }
+        if (item.position.x > canvas.width - item.s_item.radius) {
+            item.velocity.x *= item.s_item.restitution;
+            item.position.x = canvas.width - item.s_item.radius;
+        }
+        if (item.position.x < item.s_item.radius) {
+            item.velocity.x *= item.s_item.restitution;
+            item.position.x = item.s_item.radius;
+        }
+
+          
+          requestAnimationFrame(draw);
+        }
+        
+        draw();
+</script>
+</body>
+</html>
